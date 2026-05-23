@@ -6,6 +6,10 @@ export type CreateTodoPayload = {
   categoryId: number;
 };
 
+export type UpdateTodoPayload = {
+  completed: boolean;
+};
+
 export async function getTodos(categoryId?: number) {
   const response = await api.get<Todo[]>("/todos", {
     params: categoryId ? { category: categoryId } : undefined
@@ -18,4 +22,14 @@ export async function createTodo(payload: CreateTodoPayload) {
   const response = await api.post<Todo>("/todos", payload);
 
   return response.data;
+}
+
+export async function updateTodo(id: number, payload: UpdateTodoPayload) {
+  const response = await api.patch<Todo>(`/todos/${id}`, payload);
+
+  return response.data;
+}
+
+export async function deleteTodo(id: number) {
+  await api.delete(`/todos/${id}`);
 }

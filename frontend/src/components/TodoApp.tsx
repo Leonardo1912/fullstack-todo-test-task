@@ -1,14 +1,16 @@
 "use client";
 
-import { Alert, Box, Container, Typography } from "@mui/material";
+import { Alert, Box, Button, Container, Snackbar, Typography } from "@mui/material";
 import { AxiosError } from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { SyntheticEvent } from "react";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { LoadingState } from "@/components/LoadingState";
 import { TodoForm, type TodoFormValues } from "@/components/TodoForm";
 import { TodoList } from "@/components/TodoList";
+import { useTodoUndoActions } from "@/hooks/useTodoUndoActions";
 import { getCategories } from "@/services/categoriesApi";
 import { createTodo, getTodos } from "@/services/todosApi";
 import type { Category } from "@/types/category";
@@ -22,6 +24,7 @@ export function TodoApp() {
   const [isCreating, setIsCreating] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const selectedCategoryFilter = useMemo(
     () => (selectedCategoryId === "" ? undefined : selectedCategoryId),
@@ -32,6 +35,19 @@ export function TodoApp() {
     const loadedTodos = await getTodos(categoryId);
     setTodos(loadedTodos);
   }, []);
+
+  const {
+    activeSnackbar,
+    closeSnackbar,
+    completeTodo,
+    requestDeleteTodo,
+    undoActiveAction,
+    visibleTodos
+  } = useTodoUndoActions({
+    todos,
+    setTodos,
+    onError: setActionError
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -116,6 +132,14 @@ export function TodoApp() {
     }
   }
 
+  function handleSnackbarClose(_event: SyntheticEvent | Event, reason?: string) {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    closeSnackbar();
+  }
+
   return (
     <Container maxWidth="md">
       <Box component="main" sx={{ py: 6 }}>
@@ -137,6 +161,11 @@ export function TodoApp() {
           />
 
           {formError ? <Alert severity="error">{formError}</Alert> : null}
+          {actionError ? (
+            <Alert severity="error" onClose={() => setActionError(null)}>
+              {actionError}
+            </Alert>
+          ) : null}
 
           <CategoryFilter
             categories={categories}
@@ -147,10 +176,24 @@ export function TodoApp() {
 
           {isLoading ? <LoadingState /> : null}
           {loadError ? <ErrorState message={loadError} /> : null}
-          {!isLoading && !loadError && todos.length === 0 ? <EmptyState /> : null}
-          {!isLoading && !loadError && todos.length > 0 ? <TodoList todos={todos} /> : null}
+          {!isLoading && !loadError && visibleTodos.length === 0 ? <EmptyState /> : null}
+          {!isLoading && !loadError && visibleTodos.length > 0 ? (
+            <TodoList todos={visibleTodos} onComplete={completeTodo} onDelete={requestDeleteTodo} />
+          ) : null}
         </Box>
       </Box>
+      <Snackbar
+        action={
+          <Button color="secondary" size="small" onClick={undoActiveAction}>
+            Undo
+          </Button>
+        }
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        autoHideDuration={5000}
+        message={activeSnackbar?.message}
+        open={Boolean(activeSnackbar)}
+        onClose={handleSnackbarClose}
+      />
     </Container>
   );
 }
