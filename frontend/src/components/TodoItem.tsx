@@ -2,12 +2,20 @@ import { Box, Button, Checkbox, Chip, ListItem, Typography } from "@mui/material
 import type { Todo } from "@/types/todo";
 
 type TodoItemProps = {
+  isSelected: boolean;
   todo: Todo;
   onComplete: (todo: Todo) => void;
   onDelete: (todo: Todo) => void;
+  onToggleSelect: (todoId: number) => void;
 };
 
-export function TodoItem({ todo, onComplete, onDelete }: TodoItemProps) {
+export function TodoItem({
+  isSelected,
+  todo,
+  onComplete,
+  onDelete,
+  onToggleSelect
+}: TodoItemProps) {
   return (
     <ListItem
       divider
@@ -22,9 +30,15 @@ export function TodoItem({ todo, onComplete, onDelete }: TodoItemProps) {
       sx={{ px: 0 }}
     >
       <Checkbox
+        checked={isSelected}
+        edge="start"
+        slotProps={{ input: { "aria-label": `Select ${todo.text}` } }}
+        onChange={() => onToggleSelect(todo.id)}
+      />
+      <Checkbox
+        slotProps={{ input: { "aria-label": `Complete ${todo.text}` } }}
         checked={todo.completed}
         disabled={todo.completed}
-        edge="start"
         onChange={(event) => {
           if (event.target.checked) {
             onComplete(todo);

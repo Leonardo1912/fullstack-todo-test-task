@@ -12,6 +12,7 @@
     "build": "npm run build --workspace frontend && npm run build --workspace backend",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "test": "npm run test --workspace backend && npm run test --workspace frontend",
     "start:frontend": "npm run start --workspace frontend",
     "start:backend": "npm run start --workspace backend"
   },

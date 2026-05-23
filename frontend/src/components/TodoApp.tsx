@@ -25,6 +25,7 @@ export function TodoApp() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [selectedTodoIds, setSelectedTodoIds] = useState<Set<number>>(() => new Set());
 
   const selectedCategoryFilter = useMemo(
     () => (selectedCategoryId === "" ? undefined : selectedCategoryId),
@@ -48,6 +49,11 @@ export function TodoApp() {
     setTodos,
     onError: setActionError
   });
+
+  const selectedActiveTodos = useMemo(
+    () => visibleTodos.filter((todo) => selectedTodoIds.has(todo.id) && !todo.completed),
+    [selectedTodoIds, visibleTodos]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -132,6 +138,38 @@ export function TodoApp() {
     }
   }
 
+  function handleToggleTodoSelection(todoId: number) {
+    setSelectedTodoIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+
+      if (nextIds.has(todoId)) {
+        nextIds.delete(todoId);
+      } else {
+        nextIds.add(todoId);
+      }
+
+      return nextIds;
+    });
+  }
+
+  async function handleCompleteSelectedTodos() {
+    const todosToComplete = selectedActiveTodos;
+    setSelectedTodoIds(new Set());
+
+    for (const todo of todosToComplete) {
+      await completeTodo(todo);
+    }
+  }
+
+  useEffect(() => {
+    const visibleTodoIds = new Set(visibleTodos.map((todo) => todo.id));
+
+    setSelectedTodoIds((currentIds) => {
+      const nextIds = new Set([...currentIds].filter((todoId) => visibleTodoIds.has(todoId)));
+      return nextIds.size === currentIds.size ? currentIds : nextIds;
+    });
+  }, [visibleTodos]);
+
   function handleSnackbarClose(_event: SyntheticEvent | Event, reason?: string) {
     if (reason === "clickaway") {
       return;
@@ -186,11 +224,31 @@ export function TodoApp() {
             />
           </Box>
 
+          <Box sx={{ alignItems: "center", display: "flex", gap: 2 }}>
+            <Button
+              disabled={selectedActiveTodos.length === 0}
+              size="small"
+              variant="outlined"
+              onClick={handleCompleteSelectedTodos}
+            >
+              Complete selected
+            </Button>
+            <Typography color="text.secondary" variant="body2">
+              {selectedTodoIds.size} selected
+            </Typography>
+          </Box>
+
           {isLoading ? <LoadingState /> : null}
           {loadError ? <ErrorState message={loadError} /> : null}
           {!isLoading && !loadError && visibleTodos.length === 0 ? <EmptyState /> : null}
           {!isLoading && !loadError && visibleTodos.length > 0 ? (
-            <TodoList todos={visibleTodos} onComplete={completeTodo} onDelete={requestDeleteTodo} />
+            <TodoList
+              selectedTodoIds={selectedTodoIds}
+              todos={visibleTodos}
+              onComplete={completeTodo}
+              onDelete={requestDeleteTodo}
+              onToggleSelect={handleToggleTodoSelection}
+            />
           ) : null}
         </Box>
       </Box>
