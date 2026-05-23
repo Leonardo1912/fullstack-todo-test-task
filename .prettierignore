@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.next/
+coverage/
+package-lock.json
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
+.env
+.env.local
+.env.*.local

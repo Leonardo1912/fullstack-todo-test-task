@@ -1,5 +1,8 @@
 import { api } from "@/services/api";
+import type { Category } from "@/types/category";
 
-export function getCategories() {
-  return api.get("/categories");
+export async function getCategories() {
+  const response = await api.get<Category[]>("/categories");
+
+  return response.data;
 }

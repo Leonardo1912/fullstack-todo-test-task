@@ -35,6 +35,14 @@ npm run dev:backend
 
 Backend runs on `http://127.0.0.1:4000` by default.
 
+Configure the frontend API URL with:
+
+```bash
+cp frontend/.env.example frontend/.env.local
+```
+
+The frontend reads `NEXT_PUBLIC_API_BASE_URL`. If it is not set, it uses `http://127.0.0.1:4000`.
+
 ## Database
 
 The backend uses Prisma with SQLite. Copy the example environment file before running migrations:
