@@ -36,7 +36,10 @@ export const todosService = {
     });
 
     if (activeTodosCount >= MAX_ACTIVE_TODOS_PER_CATEGORY) {
-      throw new HttpError(400, "Category already has 5 active todos.");
+      throw new HttpError(
+        400,
+        "This category already has 5 active todos. Complete or delete an existing todo before adding another."
+      );
     }
 
     return prisma.todo.create({

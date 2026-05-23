@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Box, Button, Container, Snackbar, Typography } from "@mui/material";
+import { Alert, Box, Button, Container, Paper, Snackbar, Typography } from "@mui/material";
 import { AxiosError } from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SyntheticEvent } from "react";
@@ -142,23 +142,33 @@ export function TodoApp() {
 
   return (
     <Container maxWidth="md">
-      <Box component="main" sx={{ py: 6 }}>
-        <Box sx={{ display: "grid", gap: 4 }}>
+      <Box component="main" sx={{ py: { xs: 4, sm: 6 } }}>
+        <Box sx={{ display: "grid", gap: 3 }}>
           <Box>
-            <Typography component="h1" variant="h4">
+            <Typography component="h1" variant="h4" sx={{ fontWeight: 700 }}>
               Todo Categories
             </Typography>
             <Typography color="text.secondary" sx={{ mt: 1 }}>
-              Create tasks and filter them by category.
+              Keep active tasks organized by category.
             </Typography>
           </Box>
 
-          <TodoForm
-            categories={categories}
-            disabled={isLoading || categories.length === 0}
-            isSubmitting={isCreating}
-            onSubmit={handleCreateTodo}
-          />
+          <Paper
+            elevation={0}
+            sx={{
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
+              p: { xs: 2, sm: 3 }
+            }}
+          >
+            <TodoForm
+              categories={categories}
+              disabled={isLoading || categories.length === 0}
+              isSubmitting={isCreating}
+              onSubmit={handleCreateTodo}
+            />
+          </Paper>
 
           {formError ? <Alert severity="error">{formError}</Alert> : null}
           {actionError ? (
@@ -167,12 +177,14 @@ export function TodoApp() {
             </Alert>
           ) : null}
 
-          <CategoryFilter
-            categories={categories}
-            disabled={isLoading}
-            value={selectedCategoryId}
-            onChange={setSelectedCategoryId}
-          />
+          <Box sx={{ maxWidth: 320 }}>
+            <CategoryFilter
+              categories={categories}
+              disabled={isLoading}
+              value={selectedCategoryId}
+              onChange={setSelectedCategoryId}
+            />
+          </Box>
 
           {isLoading ? <LoadingState /> : null}
           {loadError ? <ErrorState message={loadError} /> : null}

@@ -102,6 +102,12 @@ export function TodoForm({
       <Button disabled={disabled || isSubmitting} type="submit" variant="contained">
         {isSubmitting ? "Adding" : "Add"}
       </Button>
+
+      {categories.length === 0 ? (
+        <FormHelperText sx={{ gridColumn: "1 / -1" }}>
+          Seed categories before creating todos.
+        </FormHelperText>
+      ) : null}
     </Box>
   );
 }

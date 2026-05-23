@@ -1,19 +1,45 @@
 # Full-Stack Todo with Categories
 
-Small full-stack Todo with Categories application.
+Small full-stack Todo application with category filtering, a backend category limit rule, and undo snackbar flows for complete/delete actions.
+
+## Tech Stack
+
+- Frontend: Next.js App Router, TypeScript, MUI, React Hook Form, Axios
+- Backend: Node.js, Express, TypeScript, Prisma, SQLite
+- Tooling: npm workspaces, Prettier
 
 ## Project Structure
 
-- `frontend/` - Next.js, TypeScript, App Router
-- `backend/` - Node.js, Express, TypeScript, Prisma, SQLite
+```text
+.
+├── frontend/          # Next.js app
+├── backend/           # Express API and Prisma schema
+├── package.json       # root workspace scripts
+├── package-lock.json
+└── README.md
+```
 
-## Install
+## Fresh Clone Setup
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-## Development
+Create environment files:
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env.local
+```
+
+Create and seed the SQLite database:
+
+```bash
+npm run prisma:migrate:init --workspace backend
+npm run prisma:seed --workspace backend
+```
 
 Run both apps:
 
@@ -21,62 +47,80 @@ Run both apps:
 npm run dev
 ```
 
-Run frontend only:
+Open the frontend at `http://localhost:3000`.
+
+## Environment Variables
+
+Backend, `backend/.env`:
 
 ```bash
-npm run dev:frontend
+DATABASE_URL="file:./dev.db"
+PORT=4000
+HOST="127.0.0.1"
+FRONTEND_URL="http://localhost:3000"
 ```
 
-Run backend only:
+Frontend, `frontend/.env.local`:
 
 ```bash
-npm run dev:backend
+NEXT_PUBLIC_API_BASE_URL="http://127.0.0.1:4000"
 ```
 
-Backend runs on `http://127.0.0.1:4000` by default.
+The frontend reads `NEXT_PUBLIC_API_BASE_URL`. If it is not set, it defaults to `http://127.0.0.1:4000`.
 
-Configure the frontend API URL with:
+## Scripts
+
+Root scripts:
 
 ```bash
-cp frontend/.env.example frontend/.env.local
+npm run dev              # run frontend and backend together
+npm run dev:frontend     # run Next.js only
+npm run dev:backend      # run Express API only
+npm run build            # build frontend and backend
+npm run format           # format project files with Prettier
+npm run format:check     # check Prettier formatting
+npm run start:frontend   # start built frontend
+npm run start:backend    # start built backend
 ```
 
-The frontend reads `NEXT_PUBLIC_API_BASE_URL`. If it is not set, it uses `http://127.0.0.1:4000`.
-
-## Database
-
-The backend uses Prisma with SQLite. Copy the example environment file before running migrations:
+Backend scripts:
 
 ```bash
-cp backend/.env.example backend/.env
+npm run dev --workspace backend
+npm run build --workspace backend
+npm run start --workspace backend
+npm run prisma:generate --workspace backend
 npm run prisma:migrate:init --workspace backend
+npm run prisma:migrate --workspace backend -- --name your_migration_name
 npm run prisma:seed --workspace backend
 ```
 
-For later schema changes, create a named migration:
+Frontend scripts:
 
 ```bash
-npm run prisma:migrate --workspace backend -- --name your_migration_name
-```
-
-`GET /todos` supports an optional `category` query parameter. Use a category id:
-
-```bash
-GET /todos?category=1
+npm run dev --workspace frontend
+npm run build --workspace frontend
+npm run start --workspace frontend
 ```
 
 ## Backend API
 
 - `GET /categories` - returns all categories
 - `GET /todos` - returns todos with category data
+- `GET /todos?category=1` - returns todos for category id `1`
 - `POST /todos` - creates a todo with `text` and `categoryId`
 - `PATCH /todos/:id` - updates `completed`
 - `DELETE /todos/:id` - deletes a todo
 
-Each category can have at most 5 active non-completed todos.
+`GET /todos` uses a category id for the optional `category` query parameter.
 
-## Build
+Each category can have at most 5 active non-completed todos. If the limit is reached, the backend returns `400` with a clear message.
+
+## Build And Checks
 
 ```bash
+npm run format:check
 npm run build
 ```
+
+No lint script is configured in this project.

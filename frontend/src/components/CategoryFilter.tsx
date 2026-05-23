@@ -24,9 +24,9 @@ export function CategoryFilter({
 
   return (
     <FormControl disabled={disabled} fullWidth>
-      <InputLabel id="category-filter-label">Category</InputLabel>
+      <InputLabel id="category-filter-label">Filter by category</InputLabel>
       <Select
-        label="Category"
+        label="Filter by category"
         labelId="category-filter-label"
         value={value === "" ? "" : String(value)}
         onChange={handleChange}

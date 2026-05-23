@@ -10,7 +10,16 @@ type TodoListProps = {
 
 export function TodoList({ todos, onComplete, onDelete }: TodoListProps) {
   return (
-    <Paper elevation={0} sx={{ border: "1px solid #ddd", p: 2 }}>
+    <Paper
+      elevation={0}
+      sx={{
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 2,
+        overflow: "hidden",
+        px: { xs: 2, sm: 3 }
+      }}
+    >
       <List disablePadding>
         {todos.map((todo) => (
           <TodoItem key={todo.id} todo={todo} onComplete={onComplete} onDelete={onDelete} />
