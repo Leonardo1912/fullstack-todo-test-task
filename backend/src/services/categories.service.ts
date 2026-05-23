@@ -1,7 +1,11 @@
+import { prisma } from "../prisma/prismaClient";
+
 export const categoriesService = {
-  notImplemented(route: string) {
-    return {
-      message: `${route} is scaffolded but not implemented yet.`
-    };
+  getAll() {
+    return prisma.category.findMany({
+      orderBy: {
+        name: "asc"
+      }
+    });
   }
 };

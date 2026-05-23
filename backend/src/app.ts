@@ -6,7 +6,11 @@ import { errorHandler } from "./middleware/errorHandler";
 
 export const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL ?? "http://localhost:3000"
+  })
+);
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
